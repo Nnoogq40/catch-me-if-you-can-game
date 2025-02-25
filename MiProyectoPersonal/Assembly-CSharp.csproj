@@ -62,12 +62,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\player\Scripts\Player Move.cs" />
+    <Compile Include="Assets\Locker\Scripts\ActionLocker.cs" />
     <Compile Include="Assets\text\scripts\ScoreManager.cs" />
+    <Compile Include="Assets\Menu\ButtonScaleEffect.cs" />
     <Compile Include="Assets\Enemy\Scripts\PlayerEnemy.cs" />
     <Compile Include="Assets\Coin\Script\SoundCoin.cs" />
     <Compile Include="Assets\Coin\Script\Coin.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
+    <Compile Include="Assets\Menu\MenuOpciones.cs" />
     <Compile Include="Assets\Sounds\New Folder\sound.cs" />
+    <Compile Include="Assets\Sounds\New Folder\ButtomSound.cs" />
     <Compile Include="Assets\player\Scripts\PlayerScore.cs" />
     <Compile Include="Assets\Menu\Menu.cs" />
   </ItemGroup>
@@ -576,6 +580,14 @@
     </Reference>
     <Reference Include="Mono.Cecil">
       <HintPath>Library\PackageCache\com.unity.nuget.mono-cecil@d6f9955a5d5f\Mono.Cecil.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Android.Types">
+      <HintPath>C:\Program Files\Unity\Hub\Editor\6000.0.38f1\Editor\Data\PlaybackEngines\AndroidPlayer\Unity.Android.Types.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Android.Gradle">
+      <HintPath>C:\Program Files\Unity\Hub\Editor\6000.0.38f1\Editor\Data\PlaybackEngines\AndroidPlayer\Unity.Android.Gradle.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="netstandard">
