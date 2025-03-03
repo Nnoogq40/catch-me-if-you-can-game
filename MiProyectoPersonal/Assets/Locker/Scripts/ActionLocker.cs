@@ -1,61 +1,97 @@
 using UnityEngine;
 
-public class ActionLocker : MonoBehaviour
+public class LockerInteraction : MonoBehaviour
 {
-    public Transform casillero;  // Referencia al casillero
-    public KeyCode teclaInteraccion = KeyCode.E;  // Tecla para entrar al casillero
-    private bool dentroDelCasillero = false;  // Para saber si el jugador est· dentro
-    private bool cercaDelCasillero = false;  // Para detectar la cercanÌa al casillero
+    public Transform insideLockerPosition; // Posici√≥n dentro del casillero
+    public Transform outsideLockerPosition; // Posici√≥n fuera del casillero
+    public Transform lockerViewPoint; // Punto de vista dentro del casillero
+    private bool isInside = false;
+    private bool nearLocker = false;
+    private GameObject player;
+    private Rigidbody playerRb;
+    private MonoBehaviour playerMovementScript;
+    private Camera playerCamera;
+    private Transform originalCameraParent;
+    private Vector3 originalCameraPosition;
+    private Quaternion originalCameraRotation;
+    private MonoBehaviour cameraFollowScript; // Guarda el script de seguimiento de la c√°mara
 
-    private void Update()
+    void Start()
     {
-        // Detecta si el jugador est· cerca del casillero y presiona la tecla "E"
-        if (cercaDelCasillero && Input.GetKeyDown(teclaInteraccion))
-        {
-            if (!dentroDelCasillero)
-            {
-                EntrarEnCasillero(); // Llama al mÈtodo para entrar en el casillero
-            }
-            else
-            {
-                SalirDelCasillero(); // Llama al mÈtodo para salir del casillero
-            }
-        }
+        playerCamera = Camera.main; // Obtiene la c√°mara principal
+        originalCameraParent = playerCamera.transform.parent; // Guarda el padre original de la c√°mara
+        originalCameraPosition = playerCamera.transform.position;
+        originalCameraRotation = playerCamera.transform.rotation; // Guarda la rotaci√≥n original
+
+        // Busca un script de seguimiento en la c√°mara (ajusta seg√∫n el script que uses)
+        cameraFollowScript = playerCamera.GetComponent<MonoBehaviour>();
     }
 
-    private void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
-        // Verifica si el jugador (con el tag "Player") est· cerca del casillero
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Jugador cerca del casillero.");
-            cercaDelCasillero = true;
+            nearLocker = true;
+            player = other.gameObject;
+            playerRb = player.GetComponent<Rigidbody>();
+            playerMovementScript = player.GetComponent<MonoBehaviour>();
         }
     }
 
-    private void OnTriggerExit(Collider other)
+    void OnTriggerExit(Collider other)
     {
-        // Verifica si el jugador ha salido del ·rea del casillero
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Jugador saliÛ del ·rea del casillero.");
-            cercaDelCasillero = false;
+            nearLocker = false;
         }
     }
 
-    private void EntrarEnCasillero()
+    void Update()
     {
-        // Mueve al personaje a la posiciÛn del casillero (ajustamos un poco para que quede dentro)
-        transform.position = casillero.position + new Vector3(0, 1, 0);  // Ajusta la posiciÛn a tus necesidades
-        dentroDelCasillero = true;
-        Debug.Log("Jugador entrÛ al casillero.");
-    }
+        if (nearLocker && Input.GetKeyDown(KeyCode.E))
+        {
+            if (!isInside) // Entrar al casillero
+            {
+                player.transform.position = insideLockerPosition.position;
+                playerRb.linearVelocity = Vector3.zero;
+                playerRb.isKinematic = true;
+                if (playerMovementScript != null)
+                    playerMovementScript.enabled = false;
 
-    private void SalirDelCasillero()
-    {
-        // Mueve al personaje fuera del casillero (ajusta esta posiciÛn seg˙n tus necesidades)
-        transform.position = new Vector3(0, 1, 0);  // Ajusta esta posiciÛn para que salga correctamente
-        dentroDelCasillero = false;
-        Debug.Log("Jugador saliÛ del casillero.");
+                // Desactivar el script de seguimiento de la c√°mara si existe
+                if (cameraFollowScript != null)
+                    cameraFollowScript.enabled = false;
+
+                // Mueve la c√°mara al punto de vista dentro del casillero
+                if (lockerViewPoint != null)
+                {
+                    playerCamera.transform.SetParent(lockerViewPoint);
+                    playerCamera.transform.position = lockerViewPoint.position;
+                    playerCamera.transform.rotation = lockerViewPoint.rotation;
+                }
+                else
+                {
+                    Debug.LogError("lockerViewPoint no est√° asignado en el Inspector.");
+                }
+            }
+            else // Salir del casillero
+            {
+                player.transform.position = outsideLockerPosition.position;
+                playerRb.isKinematic = false;
+                if (playerMovementScript != null)
+                    playerMovementScript.enabled = true;
+
+                // Restaurar la c√°mara a su posici√≥n y activar el seguimiento
+                playerCamera.transform.SetParent(originalCameraParent);
+                playerCamera.transform.position = originalCameraPosition;
+                playerCamera.transform.rotation = originalCameraRotation;
+
+                // Reactivar el script de seguimiento de la c√°mara
+                if (cameraFollowScript != null)
+                    cameraFollowScript.enabled = true;
+            }
+
+            isInside = !isInside;
+        }
     }
 }
